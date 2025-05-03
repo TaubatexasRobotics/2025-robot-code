@@ -94,8 +94,8 @@ class TestRobot(wpilib.TimedRobot):
                 self.dualshock4.getRawAxis(g_xbox_360_map["left-trigger-axis"]),
                 -self.dualshock4.getRawAxis(g_xbox_360_map["left-x-axis"]) 
             )
-        elif self.dualshock4.getRawButton(g_xbox_360_map["b"]):
-            self.drivetrain.turnToDegrees()
+        #elif self.dualshock4.getRawButton(g_xbox_360_map["b"]):
+            #self.drivetrain.turnToDegrees()
         else:
             self.drivetrain.arcadeDrive(
                 self.dualshock4.getRawAxis(g_xbox_360_map["right-trigger-axis"]),
@@ -137,11 +137,12 @@ class TestRobot(wpilib.TimedRobot):
         if self.dualshock4_2.getRawButtonPressed(g_xbox_360_map["a"]):
             self.algae_intake.setControlVal(0)
 
-        if self.dualshock4_2.getRawButton(g_xbox_360_map["press-left-stick"]):
+        if self.dualshock4_2.getRawButton(g_xbox_360_map["start"]):
             self.algae_intake.full_min_intake()
-
-        if self.dualshock4_2.getRawButton(g_xbox_360_map["press-right-stick"]):
+        elif self.dualshock4_2.getRawButton(g_xbox_360_map["back"]):
             self.algae_intake.full_max_intake()
+        else:
+            self.algae_intake.deactivate_intake()
            
         match self.algae_intake.getControlVal():
             case 0:

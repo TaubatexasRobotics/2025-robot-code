@@ -48,15 +48,17 @@ class AlgaeIntake:
         self.pid.setPID(0, 0, 0)
         self.control_val = 3
         if self.limit_switch_start.get():
-            self.intake_motion.set(-0.3)
+            self.intake_motion.set(-0.1)
         else:
             self.intake_motion.set(0)
+            self.intake_motion.getEncoder().setPosition(0)
+            self.control_val = 0
 
     def full_max_intake(self):
         self.pid.setPID(0, 0, 0)
         self.control_val = 3
         if self.limit_switch_end.get():
-            self.intake_motion.set(0.3)
+            self.intake_motion.set(0.1)
         else:
             self.intake_motion.set(0)
         
