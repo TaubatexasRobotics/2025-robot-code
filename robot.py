@@ -1,13 +1,15 @@
 import wpilib
 import wpilib.drive
 import constants
+import wpimath.geometry
 
 from climber import Climber
 from drivetrain import Drivetrain
 from buttons import dualshock4_map, g_xbox_360_map
 from algae_intake import AlgaeIntake
 from coral_intake import CoralIntake
-from wpilib.cameraserver import CameraServer
+from wpimath.controller import PIDController
+from navx import AHRS
 
 class TestRobot(wpilib.TimedRobot):
     def robotInit(self):
@@ -19,72 +21,21 @@ class TestRobot(wpilib.TimedRobot):
         self.dualshock4 = wpilib.Joystick(constants.DUALSHOCK4_ID)
         self.dualshock4_2 = wpilib.Joystick(constants.DUALSHOCK4_2_ID)
         
-        self.chooser = wpilib.SendableChooser()
-
-        self.match_mode = False
-        self.whichAutonomous = 0
-
-        self.chooser.addOption("Quadra", True)
-        self.chooser.setDefaultOption("Pit", False)
-
-        #wpilib.SmartDashboard.putData(self.chooser)
-
-        self.autochooser = wpilib.SendableChooser()
-        self.autochooser.setDefaultOption("Apenas Frente", 0)
-        self.autochooser.addOption("L1 Meio", 1)
-        #self.autochooser.addOption("L1 Dir", 2)
-        #self.autochooser.addOption("L1 Esq", 3)
-
-        wpilib.SmartDashboard.putData(self.autochooser)
-
-        self.timer = wpilib.Timer()
-        CameraServer().launch()
-
     def robotPeriodic(self):
         self.drivetrain.updateData()
-
-    def disabledInit(self):
-        self.climber.finishMotor()
 
     def autonomousInit(self):
         self.drivetrain.safetyMode()
         self.drivetrain.reset()
         self.climber.startMotor()
-        self.timer.reset()
-        self.timer.start()
-
-        self.match_mode = self.chooser.getSelected()
-        self.whichAutonomous = self.autochooser.getSelected()
 
     def autonomousPeriodic(self):
-        self.algae_intake.intake_reset_position()
-        match self.whichAutonomous:
-            case 0:
-                if self.timer.get() < 5:
-                    self.drivetrain.drivetrain.arcadeDrive(-0.5, 0)
-            case 1:
-                self.drivetrain.drivetrain.arcadeDrive(-0.5, 0)
-                if self.timer.get() >= 8 and self.timer.get() < 10:
-                    self.coral_intake.invert()
-                else:
-                    self.coral_intake.disable()
-
-    def autonomousExit(self):
-        self.timer.reset()
+        self.drivetrain.followTag(0,0)
 
     def teleopInit(self):
         self.drivetrain.safetyMode()
         self.algae_intake.reset_intake()
 
-    def teleopExit(self):
-        if self.match_mode:
-            self.timer.reset()
-            self.timer.start()
-
-    def disabledPeriodic(self):
-        if self.match_mode and self.timer.get() < 7:
-            self.climber.climber.set(-0.5)
-        
     def teleopPeriodic(self):
         self.climber.isFinished()
 

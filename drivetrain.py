@@ -4,6 +4,7 @@ import phoenix5
 import constants
 import wpimath.geometry
 from typing import Optional
+import cscore
 
 from wpimath.kinematics import DifferentialDriveOdometry
 from wpimath.controller import PIDController
@@ -51,6 +52,12 @@ class Drivetrain:
         self.camera = AprilTagCamera(constants.PHOTONVISION_CAMERA_NAME) 
 
         wpilib.SmartDashboard.putData("PID Angular Drivetrain", self.pid_angular)
+
+        self.left_pulses = self.l_encoder.get()
+        self.right_pulses = self.r_encoder.get()
+
+        wpilib.SmartDashboard.putNumber("Encoder Left", self.left_pulses)
+        wpilib.SmartDashboard.putNumber("Encoder Right", self.right_pulses)
 
     def updateData(self) -> None:
         self.pulsos_p_m_r = 4753
@@ -108,3 +115,13 @@ class Drivetrain:
 
         # Use arcade drive to move the robot
         self.drivetrain.arcadeDrive((move_value/2.6), (turn/1.5))
+
+    def followTag(self, fwd_left, fwd_right):
+        rotation = 0
+        forward = -(fwd_left - fwd_right)
+        result = self.camera.getBestTarget()
+        if result:
+            rotation = -self.pid_angular.calculate(result.getYaw(), 0)
+        else:
+            rotation = 0
+        self.drivetrain.arcadeDrive(forward, rotation)

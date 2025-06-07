@@ -12,6 +12,7 @@ class AprilTagCamera:
 
     def getBestTarget(self) -> Optional[PhotonTrackedTarget]:
         result = self.camera.getLatestResult()
+        #print(result.hasTargets())
         if result.hasTargets():
             target = result.getBestTarget()
             return target
@@ -25,7 +26,7 @@ class AprilTagCamera:
                 if target.getFiducialId() == tag:
                     return target.getYaw()
         return -1
-
+    
     def getYawWithRange(self, tag: int) -> Tuple[float, float]:
         results = self.camera.getAllUnreadResults()
         target_range = 0
