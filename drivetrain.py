@@ -100,9 +100,14 @@ class Drivetrain:
         self.right.set(right * 0.8)
 
     def arcadeDriveAlign(self, tag: int) -> None:
+        self.pid_angular.setPID(
+            wpilib.SmartDashboard.getData("PID Angular Drivetrain", self.pid_angular.getP()),
+            wpilib.SmartDashboard.getData("PID Angular Drivetrain", self.pid_angular.getI()),
+            wpilib.SmartDashboard.getData("PID Angular Drivetrain", self.pid_angular.getD()),
+        )
         yaw = self.camera.getYaw(tag)
         turn = self.pid_angular.calculate(yaw, 0) if yaw != -1 else 0
-        self.drivetrain.arcadeDrive(0, turn)
+        self.drivetrain.arcadeDrive(0, -turn)
 
     def turnToDegrees(self, setpoint: Optional[int]) -> None:
         turn = 0
