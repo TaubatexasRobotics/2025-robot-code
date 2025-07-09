@@ -1,7 +1,9 @@
+#import commands2.sysid
 import wpilib
 import wpilib.drive
 import constants
 import wpimath.geometry
+#import commands2
 
 from climber import Climber
 from drivetrain import Drivetrain
@@ -21,8 +23,28 @@ class TestRobot(wpilib.TimedRobot):
         self.dualshock4 = wpilib.Joystick(constants.DUALSHOCK4_ID)
         self.dualshock4_2 = wpilib.Joystick(constants.DUALSHOCK4_2_ID)
         
+        #routine = commands2.sysid.SysIdRoutine(
+            #commands2.sysid.SysIdRoutine.Config(),
+            #commands2.sysid.SysIdRoutine.Mechanism(self.voltageDrive, self.logMotors, self),
+        #)
+        self.led = wpilib.AddressableLED(0)
+        self.ledData = [wpilib.AddressableLED.LEDData() for _ in range(60)]
+        self.led.setLength(60)
+        self.led.setData(self.ledData)
+        self.led.start()
+        self.rainbowFirstPixelHue = 0
+
+    def rainbow(self):
+        for i in range(60):
+            hue = (self.rainbowFirstPixelHue + (i * 180 / 60)) % 180
+            self.ledData[i].setHSV(int(hue), 255, 128)
+
+        self.rainbowFirstPixelHue += 3
+        self.rainbowFirstPixelHue %= 180
+
     def robotPeriodic(self):
         self.drivetrain.updateData()
+        self.rainbow()
 
     def autonomousInit(self):
         self.drivetrain.safetyMode()
@@ -30,7 +52,8 @@ class TestRobot(wpilib.TimedRobot):
         self.climber.startMotor()
 
     def autonomousPeriodic(self):
-        self.drivetrain.followTag(0,0)
+        #self.drivetrain.followTag(0,0)
+        pass
 
     def teleopInit(self):
         self.drivetrain.safetyMode()
